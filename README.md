@@ -1,6 +1,6 @@
 # The Slim Binary&trade; Decoder
 
-This software decompiles Slim Binary&trade; files back into the Oberon-2 source language.
+This software decompiles Slim Binary&trade; files back into Oberon-2 source code.
 For accompanying native (e.g., x86, PowerPC) binaries, the decoder will extract their 
 external interfaces (but not procedure bodies).
 
@@ -21,7 +21,7 @@ the file to be decompiled.
 Should the decompiled program reference other modules, the binaries corresponding to such 
 modules must be present in the same folder.
 
-Note that `sb1d` does _not_ support the decompilation of .COB files found in the XOberon 
+Note that `sb1d` does _not_ support the decompilation of .COB files found on the XOberon 
 RTOS, as those are low-level (PowerPC) binaries.
 
 Enjoy!
