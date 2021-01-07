@@ -6,8 +6,10 @@ external interfaces (but not procedure bodies).
 
 ## Getting Started
 
-Download `sb1d.`_platform_`.7z` (where _platform_ is `Win32`, etc.) from this repository 
-and extract the executable from the archive.
+### Windows
+
+Open and build the project `win32\win32.vcxproj`.  The result (`sb1d.exe`) will be found
+inside the top-level `bld/` folder.
 
 ## Using the Decoder
 
@@ -23,5 +25,7 @@ modules must be present in the same folder.
 
 Note that `sb1d` does _not_ support the decompilation of .COB files found on the XOberon 
 RTOS, as those are low-level (PowerPC) binaries.
+
+Please create an issue on GitHub if you run into problems.
 
 Enjoy!

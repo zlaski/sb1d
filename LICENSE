@@ -1,5 +1,5 @@
    (C) Copyright 1997-1999 Regents of the University of California.
-   (C) Copyright 2000-2019 Ziemowit Laski
+   (C) Copyright 2000-2020 Ziemowit Laski
    All rights reserved.
 
    This software was developed as part of the Juice project by the
@@ -7,7 +7,7 @@
    California, Irvine.  The archived website may be found at URL:
    https://web.archive.org/web/19990224193647/http://caesar.ics.uci.edu/juice/index.html. 
 
-   Redistribution and use of the decoder (in binary form) and any
+   Redistribution and use of the decoder and any
    output files that it generates is permitted provided
    that the above copyright notice and this paragraph are duplicated  
    in all such forms and provided that any documentation, 
