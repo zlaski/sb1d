@@ -159,7 +159,7 @@ inline bool ends_with(std::string const & value, std::string const & ending)
 
 string slim_binary::LookupFile(const string &f) {
     string i = f;
-    auto t = fileMap.find(capitalize(f));
+    unordered_map<string, string>::iterator t = fileMap.find(capitalize(f));
     if (t != fileMap.end()) {
         i = t->second;
     }
@@ -168,7 +168,7 @@ string slim_binary::LookupFile(const string &f) {
 
 string slim_binary::LookupModule(const string &f, bool truncExtension) {
     string i = f;
-    auto t = moduleMap.find(capitalize(f));
+    unordered_map<string, string>::iterator t = moduleMap.find(capitalize(f));
     if (t != moduleMap.end()) {
         i = t->second;
     }

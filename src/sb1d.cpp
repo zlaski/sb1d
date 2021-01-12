@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
       cout << "   (and usually huge) dump of the decoder's internal data\n";
       cout << "   store (\'.Dump\').  Otherwise, an Oberon-2 source program (\'.Mod\')\n";
       cout << "   is generated.  In either case, the output is written into the\n";
-      cout << "   current directory, unless an \'--output\' path is also specified.\n";
+      cout << "   current directory, unless an \'--output\' path is also specified.\n\n";
       return 1;
    }
 

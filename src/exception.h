@@ -20,23 +20,14 @@
  
 namespace std {
 
-class string_exception: public exception {
-  public:
-  string msg;
-  explicit string_exception(const string &exc_msg) throw();
-  virtual ~string_exception(void) noexcept;
-  virtual const char* what() const throw();
-};
-
-class assert_failure: public string_exception {
+class assert_failure: public runtime_error {
   public:
   explicit assert_failure(const string &file, int line, const string &expr);
-  virtual ~assert_failure(void);
 };
 
 #undef assert
 
-#if defined(DEBUG) || defined(_DEBUG)
+#if !defined(NDEBUG)
   #define assert(expr) if(!(expr)) throw assert_failure(__FILE__, __LINE__, #expr)
 #else
   #define assert(expr)

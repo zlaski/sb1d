@@ -48,7 +48,7 @@ bool slim_binary::check_leaf(void) {
 
 void slim_binary::append_attributes(scope *s, sym_vis vis, bool /* leaf */) {
    switch(vis) {
-      // case hidden: s < bi->slot("HIDDEN"); break;
+      case hidden: s->slot(bi->slot("HIDDEN")); break;
       case read_only: s->slot(bi->slot("READONLY")); break;
       case visible: s->slot(bi->slot("VISIBLE")); break;
    }
@@ -61,17 +61,17 @@ void slim_binary::append_attributes(scope *s, sym_vis vis, bool /* leaf */) {
 void slim_binary::PublicInterface(sym_vis vis) {
    // see if we have a valid header
    sb_byte = (sb_type)f.get();
-   if(sb_byte != sb_type::oberonMagic && sb_byte != sb_type::oberonFileMap) {
+   if(sb_byte != oberonMagic && sb_byte != oberonFileMap) {
        streampos beg(0L);
        throw slim_error(InvalidHeader, current_module->name, beg);
    }
 
-   if (sb_byte == sb_type::oberonFileMap) {
+   if (sb_byte == oberonFileMap) {
        f.get();
        char fname[FILEMAP_HEADER];
        f.read(fname, FILEMAP_HEADER - 2);
        current_module->slot("NAME IN HEADER")->slot(fname);
-       if (f.get() != sb_type::oberonMagic) {
+       if (f.get() != oberonMagic) {
            streampos sp(FILEMAP_HEADER);
            throw slim_error(InvalidHeader, current_module->name, sp);
        }
@@ -81,17 +81,17 @@ void slim_binary::PublicInterface(sym_vis vis) {
 
    string binary_type = "UNKNOWN BINARY";
    switch (sb_hdr) {
-   case hdr_type::x86Binary:
+   case x86Binary:
        binary_type = ("x86 binary");
        break;
-   case hdr_type::macPPCBinary:
-   case hdr_type::linuxPPCBinary:
+   case macPPCBinary:
+   case linuxPPCBinary:
        binary_type = ("PowerPC binary");
        break;
-   case hdr_type::mac68kBinary:
+   case mac68kBinary:
        binary_type = ("68K binary");
        break;
-   case hdr_type::slimBinary:
+   case slimBinary:
        binary_type = (SLIMBIN);
        break;
    }
@@ -101,7 +101,7 @@ void slim_binary::PublicInterface(sym_vis vis) {
 
    string name = current_module->slot("FILENAME")->existing_slot(1)->name;
    cout << "  " << fdir << name;
-   auto t = moduleMap.find(capitalize(name));
+   unordered_map<string, string>::iterator t = moduleMap.find(capitalize(name));
    if (t != moduleMap.end()) {
        cout << " (" << t->second << ")";
    }

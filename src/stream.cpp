@@ -12,7 +12,8 @@
  *                                                                            *
  ******************************************************************************/
 
-#include <locale>
+#include <ctype.h>
+
 #include "stream.h"
 
 namespace std {
@@ -87,7 +88,7 @@ utf8ifstream::int_type utf8ifstream::get(void) {
       if((d = ifstream::get()) == char_traits<char>::eof()) {
         return d;
       };
-      if(!isxdigit(d, locale::classic())) {
+      if(!isxdigit((wchar_t)d, locale::classic())) {
         break;
       }
       (c <<= 4) |= digit_val(d);
@@ -144,14 +145,14 @@ void utf8ifstream::push(void) {
 
 void utf8ifstream::pop(void) /*throw(string_exception)*/ {
   if(mark_stack.empty()) {
-    throw string_exception("std::utf8ifstream: position stack empty");
+    throw runtime_error("std::utf8ifstream: position stack empty");
   }
   mark_stack.pop();
 };
 
 void utf8ifstream::reset(void) /*throw(string_exception)*/ {
   if(mark_stack.empty()) {
-    throw string_exception("std::utf8ifstream: position stack empty");
+    throw runtime_error("std::utf8ifstream: position stack empty");
   }
   pos_info &info = mark_stack.top();
   ifstream::seekg(info.pos);

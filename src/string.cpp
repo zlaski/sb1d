@@ -38,7 +38,7 @@ string hex(const long &val, int wide, char filler) {
 // ==================================== digit
 
 const int digit_val(const int c) {
-   if(isdigit(c, locale::classic())) return c - '0';
+   if(isdigit((wchar_t)c, locale::classic())) return c - '0';
    if(c >= 'A' && c <= 'F') return c - 'A' + 10;
    if(c >= 'a' && c <= 'f') return c - 'a' + 10;
    return -1;  // some large #
@@ -69,7 +69,7 @@ string literal(const unsigned char c) {
       case '\'': s = "\\\'"; break;
       case '\"': s = "\\\""; break;
       default:
-         if(isprint(c, locale::classic())) s = c;
+         if(isprint((wchar_t)c, locale::classic())) s = c;
          else s = "\\0x" + hex((long)c, 2);
          break;
    }
@@ -90,7 +90,7 @@ const unsigned char literal(const string &s) {
          case 'f': c = 12; break;
          case 'r': c = 13; break;
          default:
-            if(isdigit(c, locale::classic())) {
+            if(isdigit((wchar_t)c, locale::classic())) {
                //       \0xnn Hex
                //       \nnn  Octal
                int d = 0; char base = 8;
@@ -123,7 +123,7 @@ const unsigned char literal(ifstream &f) {
          case 'f': c = 12; break;
          case 'r': c = 13; break;
          default:
-            if(isdigit(c, locale::classic())) {
+            if(isdigit((wchar_t)c, locale::classic())) {
                //       \0xnn Hex
                //       \nnn  Octal
                int d = 0; char base = 8;

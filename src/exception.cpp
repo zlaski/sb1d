@@ -17,27 +17,10 @@
 
 namespace std {
 
-// ==================================== string_exception
-
-string_exception::string_exception(const string &exc_msg) throw():
-      exception() {
-  msg = exc_msg;
-}
-const char* string_exception::what() const throw() {
-   return msg.c_str();
-}
-string_exception::~string_exception(void) noexcept {
-   // nothing
-}
-
 // ==================================== assert_failure
 
 assert_failure::assert_failure(const string &file, int line, const string &expr):
-      string_exception(string(file + "(" + str(line) + "): assert(" + expr +")").c_str()) {
-   // nothing
-}
-
-assert_failure::~assert_failure(void) {
+      runtime_error(string(file + "(" + str(line) + "): assert(" + expr +")")) {
    // nothing
 }
 

@@ -55,11 +55,8 @@ string slim_error::build_msg(slim_errno e, const string& f, streampos& o) {
     return m;
 }
 
-slim_error::slim_error(slim_errno e, const string &f, streampos &o) throw():
-   string_exception(build_msg(e, f, o)) {
-   // nothing
-}
-slim_error::~slim_error(void) {
+slim_error::slim_error(slim_errno e, const string &f, streampos &o):
+   runtime_error(build_msg(e, f, o).c_str()) {
    // nothing
 }
 

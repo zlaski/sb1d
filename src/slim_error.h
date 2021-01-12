@@ -50,12 +50,11 @@ enum slim_errno {
    CannotOpenModule
 };
 
-class slim_error: public string_exception {
+class slim_error: public runtime_error {
    static const char *msg[]; // error message array
    static string build_msg(slim_errno e, const string& f, streampos& o);
 public:
-   slim_error(slim_errno e, const string &f, streampos &o) throw();
-   virtual ~slim_error(void);
+   slim_error(slim_errno e, const string &f, streampos &o);
 };
 
 
