@@ -3,7 +3,7 @@
  *                                                                            *
  * STLEXT -- Extension to the Standard Template Library                       *
  *                                                                            *
- * Copyright (c) 1997-2020 by Ziemowit Laski.  All rights reserved.           *
+ * Copyright (c) 1997-2021 by Ziemowit Laski.  All rights reserved.           *
  *                                                                            *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND  WITHOUT  ANY  EXPRESSED  OR       *
  * IMPLIED  WARRANTIES,  INCLUDING,  WITHOUT LIMITATION, THE IMPLIED          *
@@ -17,47 +17,17 @@
 
 namespace std {
 
-// decimal, hex and octal conversions for integral types
+// hex conversion for integral types
 
-const string &dec(const long &val, int wide, char filler) {
-   static string r;
-   char buf[240];
-   ostrstream s(buf, 240);
-
-   s.setf(ios_base::dec, ios_base::basefield);
-   if(wide) s.width(wide);
-   s.fill(filler);
-   s <<  val << '\0';
-   r = s.str();
-   return r;
-}
-
-
-const string &hex(const long &val, int wide, char filler) {
-   static string r;
-   char buf[240];
-   ostrstream s(buf, 240);
+string hex(const long &val, int wide, char filler) {
+   string r;
+   ostringstream s;
 
    s.setf(ios_base::uppercase);
    s.setf(ios_base::hex, ios_base::basefield);
    if(wide) s.width(wide);
    s.fill(filler);
-   s <<  val << '\0';
-   r = s.str();
-   return r;
-}
-
-
-const string &oct(const long &val, int wide, char filler) {
-   static string r;
-   char buf[240];
-   ostrstream s(buf, 240);
-
-   s.setf(ios_base::uppercase);
-   s.setf(ios_base::oct, ios_base::basefield);
-   if(wide) s.width(wide);
-   s.fill(filler);
-   s <<  val << '\0';
+   s <<  val /*<< '\0'*/;
    r = s.str();
    return r;
 }
@@ -85,8 +55,8 @@ const int digit_str(const int d) {
 
 // ==================================== literal
 
-const string &literal(const unsigned char c) {
-   static string s;
+string literal(const unsigned char c) {
+   string s;
    switch(c) {
       case 7:  s = "\\a"; break;
       case 8:  s = "\\b"; break;
@@ -177,15 +147,15 @@ const unsigned char literal(ifstream &f) {
 
 // ==================================== quoted_literal
 
-const string &quoted_literal(const unsigned char c) {
-   static string t;
+string quoted_literal(const unsigned char c) {
+   string t;
    t = "\'" + literal(c) + "\'";
    return t;
 }
 
 
-const string &quoted_literal(const string &s) {
-   static string t;
+string quoted_literal(const string &s) {
+   string t;
    t = "\"";
    for(size_t i = 0; i < s.size(); i++) {
       t += literal(s[i]);

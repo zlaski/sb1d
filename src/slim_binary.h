@@ -4,7 +4,7 @@
  * The SlimBinary(tm) Decoder                                                 *
  *                                                                            *
  * Copyright (c) 1997-1999 by the Regents of the University of California     *
- * Copyright (c) 2000-2020 by Ziemowit Laski                                  *
+ * Copyright (c) 2000-2021 by Ziemowit Laski                                  *
  *                                                                            *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND  WITHOUT  ANY  EXPRESSED  OR       *
  * IMPLIED  WARRANTIES,  INCLUDING,  WITHOUT LIMITATION, THE IMPLIED          *
@@ -16,9 +16,8 @@
 #ifndef __juice_slim_binary
 #define __juice_slim_binary
 
-#define SB1D_VERSION "1.40"
+#define SB1D_VERSION "2.00"
 #define SLIMBIN      "Slim Binary(tm)"
-#define XOBERON " [XOberon]"
 #define FILEMAP_HEADER 0x22
 #define FILEDIR_FILE "$FILEDIR.$$$"
 
@@ -59,7 +58,7 @@ class slim_binary {
    scope
       top,        // the top-most symbol for the whole associative hierarchy
       *curr,      // current position within the hierarchy
-      *curr_mod,  // current module being processed
+      *current_module,  // current module being processed
       *bi,        // sub-container for built-in symbols (data types, etc.)
       *gcode,     // global code enumeration
       *lcode,     // local code enumeration
@@ -69,30 +68,30 @@ class slim_binary {
    bool open_module(const string &name, int pos = 0);
    sym_vis check_visibility(sym_vis vis);
    bool check_leaf(void);
-   void append_attributes(scope &s, sym_vis vis, bool leaf = false);
+   void append_attributes(scope *s, sym_vis vis, bool leaf = false);
    void generate_sym_enum(scope *enum_sym, int &gtl, int &ltl,
          const string &module_name = "", bool mandatory = false);
 
    // pretty-printing
-   void ppImport(scope &sc, ostream &out, int indent);
-   void ppDeclarations(scope &sc, ostream &out, int indent);
-   void ppConst(scope &sc, ostream &out, int indent);
-   void ppType(scope &sc, ostream &out, int indent);
-   void ppType1(scope &sc, ostream &out, int indent);
-   void ppVar(scope &sc, ostream &out, int indent, bool new_line = true);
-   void ppVar1(scope &sc, ostream &out);
-   void ppProcedure(scope &sc, ostream &out, int indent);
-   void ppProcedure1(scope &sc, ostream &out, int indent);
-   void ppBlock(scope &sc, ostream &out, int indent);
-   void ppStatement(scope &sc, ostream &out, int indent);
-   void ppIFStatement(scope &sc, ostream &out, int indent);
-   void ppWITHStatement(scope &sc, ostream &out, int indent);
-   void ppCASEStatement(scope &sc, ostream &out, int indent);
-   void ppWHILEStatement(scope &sc, ostream &out, int indent);
-   void ppREPEATStatement(scope &sc, ostream &out, int indent);
-   void ppLOOPStatement(scope &sc, ostream &out, int indent);
-   const string &ppIdent(scope &id);
-   void ppProcSignature(scope &sc, ostream &out, bool print_name = true,
+   void ppImport(scope *sc, ostream &out, int indent);
+   void ppDeclarations(scope *sc, ostream &out, int indent);
+   void ppConst(scope *sc, ostream &out, int indent);
+   void ppType(scope *sc, ostream &out, int indent);
+   void ppType1(scope *sc, ostream &out, int indent);
+   void ppVar(scope *sc, ostream &out, int indent, bool new_line = true);
+   void ppVar1(scope *sc, ostream &out);
+   void ppProcedure(scope *sc, ostream &out, int indent);
+   void ppProcedure1(scope *sc, ostream &out, int indent);
+   void ppBlock(scope *sc, ostream &out, int indent);
+   void ppStatement(scope *sc, ostream &out, int indent);
+   void ppIFStatement(scope *sc, ostream &out, int indent);
+   void ppWITHStatement(scope *sc, ostream &out, int indent);
+   void ppCASEStatement(scope *sc, ostream &out, int indent);
+   void ppWHILEStatement(scope *sc, ostream &out, int indent);
+   void ppREPEATStatement(scope *sc, ostream &out, int indent);
+   void ppLOOPStatement(scope *sc, ostream &out, int indent);
+   const string &ppIdent(scope *id);
+   void ppProcSignature(scope *sc, ostream &out, bool print_name = true,
          bool print_forward = false);
 
   public:

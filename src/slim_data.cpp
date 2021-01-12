@@ -15,7 +15,7 @@
 
 #include <ctype.h>
 
-#include <strstream>
+//#include <sstream>
 using namespace std;
 
 #include "slim_data.h"
@@ -26,20 +26,29 @@ namespace juice {
 
 long div(long n, long d) {
    long res = n / d;
-   if(n % d < mod(n, d)) res--;
+   if (n % d < mod(n, d)) {
+       res--;
+   }
    return res;
 }
 
 
 long mod(long n, long d) {
    long res = n % d;
-   if(res < 0) if(d > 0) res += d; else res -= d;
+   if(res < 0) { 
+       if (d > 0) {
+	   res += d;
+       }
+       else res -= d;
+   }
    return res;
 }
 
 
 char hex_value(char c) {
-   if(isdigit(c)) c -= '0';
+   if (isdigit(c)) {
+      c -= '0';
+   }
    else if(isxdigit(c)) {
       c -= (islower(c)? 'a': 'A');
       c += 10;
@@ -269,15 +278,28 @@ slim_str &slim_str::operator =(const string &s) {
    int i = 0; unsigned char ch;
    val = s;
    str.erase(); ch = s[i];
-   if(!ch) { str += (char)'\0x00'; return *this; }
-   while(ch && ch < 0x7F) { ch = s[++i]; }
-   if(i > 1) str += s.substr(0, i - 1);
-   if(!ch) str += (char)(s[i - 1] + 0x80);
+   if(!ch) { 
+       str += (char)0x00; 
+       return *this;
+   }
+   while(ch && ch < 0x7F) { 
+       ch = s[++i];
+   }
+   if (i > 1) {
+       str += s.substr(0, i - 1);
+   }
+   if (!ch) {
+       str += (char)(s[i - 1] + 0x80);
+   }
    else {
-      if(i > 0) str += s[i - 1];
-      str += (char)'\0x7F';
-      do { str += (char)ch; ch = s[++i]; } while(ch);
-      str += (char)'\0x00';
+       if (i > 0) {
+	   str += s[i - 1];
+       }
+      str += (char)0x7F;
+      do { 
+	  str += (char)ch; ch = s[++i];
+      } while(ch);
+      str += (char)0x00;
    }
    return *this;
 }
@@ -309,9 +331,16 @@ void slim_str::_calcval(void) {
    val.erase();
    while(true) {
       ch = str[j++];
-      if(!ch) return;
-      else if(ch < 0x7F) val += ch;
-      else if(ch > 0x7F) { val += (char)(ch - 0x80); return; }
+      if (!ch) {
+	  return;
+      }
+      else if (ch < 0x7F) {
+	  val += ch;
+      }
+      else if(ch > 0x7F) {
+	  val += (char)(ch - 0x80);
+	  return;
+      }
       else /* ch == 0x7F */ break;
    }
    while(true) {
@@ -327,15 +356,25 @@ istream &operator >>(istream &in, slim_str &s) {
    s.str.erase();
    while(true) {
       ch = in.get();
-      if(!ch || ch == char_traits<char>::eof()) goto compute_val;
-      else if(ch < 0x7F) s.str += (char)ch;
-      else if(ch > 0x7F) { s.str += (char)ch; goto compute_val; }
+      if (!ch || ch == char_traits<char>::eof()) {
+	  goto compute_val;
+      }
+      else if (ch < 0x7F) {
+	  s.str += (char)ch;
+      }
+      else if(ch > 0x7F) { 
+	  s.str += (char)ch; goto compute_val;
+      }
       else /* ch == 0x7F */ break;
    }
    while(true) {
       ch = in.get();
-      if(!ch || ch == char_traits<char>::eof()) goto compute_val;
-      else s.str += (char)ch;
+      if (!ch || ch == char_traits<char>::eof()) {
+	  goto compute_val;
+      }
+      else {
+	  s.str += (char)ch;
+      }
    }
   compute_val:
    s._calcval();

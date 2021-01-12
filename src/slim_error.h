@@ -4,7 +4,7 @@
  * The Slim Binary(tm) Decoder                                                *
  *                                                                            *
  * Copyright (c) 1997-1999 by the Regents of the University of California     *
- * Copyright (c) 2000-2020 by Ziemowit Laski                                  *
+ * Copyright (c) 2000-2021 by Ziemowit Laski                                  *
  *                                                                            *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND  WITHOUT  ANY  EXPRESSED  OR       *
  * IMPLIED  WARRANTIES,  INCLUDING,  WITHOUT LIMITATION, THE IMPLIED          *
@@ -52,7 +52,8 @@ enum slim_errno {
 
 class slim_error: public string_exception {
    static const char *msg[]; // error message array
-  public:
+   static string build_msg(slim_errno e, const string& f, streampos& o);
+public:
    slim_error(slim_errno e, const string &f, streampos &o) throw();
    virtual ~slim_error(void);
 };

@@ -4,7 +4,7 @@
  * The Slim Binary(tm) Decoder                                                *
  *                                                                            *
  * Copyright (c) 1997-1999 by the Regents of the University of California     *
- * Copyright (c) 2000-2020 by Ziemowit Laski                                  *
+ * Copyright (c) 2000-2021 by Ziemowit Laski                                  *
  *                                                                            *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND  WITHOUT  ANY  EXPRESSED  OR       *
  * IMPLIED  WARRANTIES,  INCLUDING,  WITHOUT LIMITATION, THE IMPLIED          *
@@ -18,6 +18,7 @@
 #include <algorithm>
 using namespace std;
 #include <ctype.h>
+#include <string.h>
 
 #include "scope.h"
 #include "exception.h"
@@ -39,18 +40,21 @@ bool slim_binary::open_module(const string &file, int pos) {
    fname = fdir + fn;
    f.open(fname.c_str(), ios_base::in | ios_base::binary);
    if(!f.is_open()) {
-      cout << "Fatal: Could not open \'" << fn << "\' for input\n";
       return false;
    }
 
-   (*curr_mod)("TYPE") < (*bi)("MODULE");  // record type and source file
-   (*curr_mod)("FILENAME") < fn;
-   gcode = &(*curr_mod)("CODE ENUM");
-   lcode = gcode;  // for now
-   gtype = &(*curr_mod)("TYPE ENUM");
+   current_module->slot("TYPE")->slot(bi->slot("MODULE"));  // record type and source file
+   current_module->slot("ORIG FILENAME")->slot(file);
+   current_module->slot("FILENAME")->slot(fn);
+   current_module->slot("CANON FILENAME")->slot(LookupModule(file, false));
 
-   curr_mod->name = LookupModule(fn);
-   // top("GLOBAL MODULE ENUM") < curr_mod->name;
+   gcode = current_module->slot("CODE ENUM");
+   lcode = gcode;  // for now
+   gtype = current_module->slot("TYPE ENUM");
+
+   current_module->name = LookupModule(fn);
+   // top("GLOBAL MODULE ENUM") < current_module->name;
+
    f.seekg(pos);
    return true;
 }
@@ -73,9 +77,8 @@ slim_binary::~slim_binary(void) {
 //
 void slim_binary::FileMapping(void) {
     string files = fdir + FILEDIR_FILE;
-    FILE* mapping;
-    if (!fopen_s(&mapping, files.c_str(), "r")) {
-        cout << FILEDIR_FILE " mapping\n";
+    if (FILE * mapping = fopen(files.c_str(), "r")) {
+        cout << "  " << fdir << FILEDIR_FILE ": File mapping\n";
 
         fseek(mapping, 0, SEEK_END);
         int size = ftell(mapping);
@@ -92,8 +95,10 @@ void slim_binary::FileMapping(void) {
             }
             string filename(r);
             r += strlen(r) + 1;
+            // Module names are in mixed case (e.g., 'EditorPane.Obj') so
+            // we capitalize them for easier lookup
             fileMap[capitalize(modulename)] = filename;
-            moduleMap[capitalize(filename)] = modulename;
+            moduleMap[filename] = modulename;
         }
         free(m);
         fclose(mapping);
@@ -102,25 +107,19 @@ void slim_binary::FileMapping(void) {
 // ==================================== reading, writing
 
 bool slim_binary::read(const string &name) {
-   top.clear();
-   top.name = name;
-   bi = &top("BUILT IN");
-   psym = curr = curr_mod = &top; // start at the top of the slim binary
-   code_gen_phase = false;
+    top.clear();
+    top.name = name;
+    bi = top.slot("BUILT IN");
+    psym = curr = current_module = &top; // start at the top of the slim binary
+    code_gen_phase = false;
 
-   try {
-      FileMapping();
-      top("GLOBAL MODULE ENUM")(LookupModule(LookupFile(name)));
-      if(!open_module(name, 0)) return false;
-      SlimBinary();
-      return true;
-   }
-   catch(exception &e) {
-      cout << "Exception: " << e.what() << endl;
-      long p = (long)f.tellg();
-      cout << "Vicinity: " << curr_mod->name << "[" << hex(p, 6) << "H]\n";
-      return false;
-   }
+    FileMapping();
+    top.slot("GLOBAL MODULE ENUM")->slot(LookupModule(name, true))->slot(LookupModule(name, false));
+    if (!open_module(name, 0)) {
+        return false;
+    }
+    SlimBinary();
+    return true;
 }
 
 
@@ -129,7 +128,7 @@ bool slim_binary::read(const string &name) {
 void slim_binary::SlimBinary(void) {
 
    PublicInterface(visible);  // this is read for every imported module as well...
-   if(!(*curr_mod)("TYPE").has(SLIMBIN)) {
+   if(!current_module->slot("TYPE")->has_slot(SLIMBIN)) {
       return;
    }
 
@@ -159,21 +158,25 @@ inline bool ends_with(std::string const & value, std::string const & ending)
 }
 
 string slim_binary::LookupFile(const string &f) {
-    string i = capitalize(f);
-    if (fileMap.count(i)) {
-        return fileMap[i];
+    string i = f;
+    auto t = fileMap.find(capitalize(f));
+    if (t != fileMap.end()) {
+        i = t->second;
     }
     return i;
 }
 
 string slim_binary::LookupModule(const string &f, bool truncExtension) {
-    string i = capitalize(f);
-    if (moduleMap.count(i)) {
-        i = moduleMap[i];
+    string i = f;
+    auto t = moduleMap.find(capitalize(f));
+    if (t != moduleMap.end()) {
+        i = t->second;
     }
+
     size_t dotOffs = i.find_last_of('.');
     dotOffs = std::min(dotOffs, i.size());
-    return truncExtension? string(i.begin(), i.begin() + dotOffs): i;
+    string truncated(i.begin(), i.begin() + dotOffs);
+    return truncExtension? truncated: i;
 }
 
 } // namespace juice

@@ -3,7 +3,7 @@
  *                                                                            *
  * STLEXT -- Extension to the Standard Template Library                       *
  *                                                                            *
- * Copyright (c) 1997-2020 by Ziemowit Laski.  All rights reserved.           *
+ * Copyright (c) 1997-2021 by Ziemowit Laski.  All rights reserved.           *
  *                                                                            *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND  WITHOUT  ANY  EXPRESSED  OR       *
  * IMPLIED  WARRANTIES,  INCLUDING,  WITHOUT LIMITATION, THE IMPLIED          *

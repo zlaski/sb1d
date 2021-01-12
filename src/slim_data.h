@@ -4,7 +4,7 @@
  * The SlimBinary(tm) Decoder                                                 *
  *                                                                            *
  * Copyright (c) 1997-1999 by the Regents of the University of California     *
- * Copyright (c) 2000-2020 by Ziemowit Laski                                  *
+ * Copyright (c) 2000-2021 by Ziemowit Laski                                  *
  *                                                                            *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND  WITHOUT  ANY  EXPRESSED  OR       *
  * IMPLIED  WARRANTIES,  INCLUDING,  WITHOUT LIMITATION, THE IMPLIED          *
@@ -18,7 +18,7 @@
 
 #include <string>
 #include <iostream>
-#include <strstream>
+#include <sstream>
 using namespace std;
 
 #include "string.h"

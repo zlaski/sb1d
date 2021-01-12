@@ -8,8 +8,13 @@ external interfaces (but not procedure bodies).
 
 ### Windows
 
-Open and build the project `win32\win32.vcxproj`.  The result (`sb1d.exe`) will be found
+Open and build the project `win32\sb1d.vcxproj`.  The result (`sb1d.exe`) will be found
 inside the top-level `bld/` folder.
+
+### Other platforms (macOS, Linux, etc.)
+
+Run the `make` command from the root directory (i.e., where this `README.md` file
+resides).  The result (`sb1d`) will be found inside the top-level `bld/` folder.
 
 ## Using the Decoder
 

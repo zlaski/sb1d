@@ -3,7 +3,7 @@
  *                                                                            *
  * STLEXT -- Extension to the Standard Template Library                       *
  *                                                                            *
- * Copyright (c) 1997-2020 by Ziemowit Laski.  All rights reserved.           *
+ * Copyright (c) 1997-2021 by Ziemowit Laski.  All rights reserved.           *
  *                                                                            *
  * THIS SOFTWARE IS PROVIDED ``AS IS'' AND  WITHOUT  ANY  EXPRESSED  OR       *
  * IMPLIED  WARRANTIES,  INCLUDING,  WITHOUT LIMITATION, THE IMPLIED          *
@@ -47,12 +47,12 @@ int scope::size(void) const {
 }
 
 
-// ==================================== scope::ext_size
+// ==================================== scope::size_incl_base
 
-int scope::ext_size(void) const {
+int scope::size_incl_base(void) const {
    int s = size();
    if(has_base()) {
-      s += base().ext_size();
+      s += base()->size_incl_base();
    }
    return s;
 }
@@ -66,29 +66,29 @@ int scope::print(ostream &out, int depth, int indent) const {
    out << string(indent, ' ');
 
    out << quoted_literal(name)
-         << " <" << hex((unsigned long)this, 8) << ">";
+         << " <0" << hex((unsigned long)this, 0) << "H>";
    if(has_owner()) {
-      out << " [" << hex((unsigned long)&owner(), 8) << "]";
+      out << " [0" << hex((unsigned long)owner(), 0) << "H]";
    }
    if(has_base()) {
-      out << ": (" << hex((unsigned long)&base(), 8) << ")";
+      out << ": (0" << hex((unsigned long)base(), 0) << "H)";
    }
    if(depth > 0 || depth == -1) {
       if(size() > 0) {
          out << " {\n";
          for(int i = 1; i <= size(); i++) {
             if(owns(i)) {
-               num_lines += old_slot(i).print(out, (depth > 0? depth - 1: -1),
+               num_lines += existing_slot(i)->print(out, (depth > 0? depth - 1: -1),
                      indent + 2);
             }
             else {
-               num_lines += old_slot(i).print(out, 0, indent + 2);
+               num_lines += existing_slot(i)->print(out, 0, indent + 2);
             }
          }
          out << string(indent, ' ') << "}";
          if(num_lines >= 10) {
             out << " // " << quoted_literal(name)
-                  << " (" << hex((unsigned long)this, 8) << ")";
+                  << " (0" << hex((unsigned long)this, 0) << "H)";
          }
       }
    }
@@ -120,11 +120,6 @@ bool scope::eq(const string &n) const {
 }
 
 
-bool scope::operator ==(const string &n) const {
-   return (name == n);
-}
-
-
 // ==================================== scope::ne
 
 bool scope::ne(const string &n) const {
@@ -132,16 +127,11 @@ bool scope::ne(const string &n) const {
 }
 
 
-bool scope::operator !=(const string &n) const {
-   return (name != n);
-}
-
-
 // ==================================== scope::owner
 
-const scope &scope::owner(void) const {
+const scope *scope::owner(void) const {
   assert(_owner != NULL);
-  return *_owner;
+  return _owner;
 }
 
 
@@ -152,14 +142,9 @@ bool scope::has_owner(void) const {
 }
 
 
-bool scope::has_owner(const scope &o) const {
-   assert(&o != NULL);
-   try {
-      return (_owner == &o);  // may throw access violation if 'this' has
-   }                         // already been deallocated!
-   catch(...) {
-      return false;
-   }
+bool scope::has_owner(const scope *o) const {
+   assert(o != NULL);
+   return (_owner == o); 
 }
 
 
@@ -167,44 +152,44 @@ bool scope::has_owner(const scope &o) const {
 
 void scope::set_owner(void) {
    if(_owner) {
-      int pos = owner().find_slot_obj(*this);
+      int pos = owner()->slot_offset(this);
       // _owner MUST own this object at this point!
       assert(pos > 0);
-      assert(owner().owns(pos));
+      assert(owner()->owns(pos));
       _owner->_owns[pos - 1] = false;
       _owner = NULL;
    }
 }
 
 
-void scope::set_owner(scope &o) {
-   if(&o == NULL) throw 1;
+void scope::set_owner(scope *o) {
+   assert(o);
    set_owner();   // clear out previous owner, if any
 
    // the prospective new owner must already contain the object
    // in its scope!
-   int pos = o.find_slot_obj(*this);
+   int pos = o->slot_offset(this);
    assert(pos > 0);
-   assert(o._owns[pos - 1] == false);
-   o._owns[pos - 1] = true;
-   _owner = &o;
+   assert(o->_owns[pos - 1] == false);
+   o->_owns[pos - 1] = true;
+   _owner = o;
 }
 
 
-// ==================================== scope::ext_has_owner
+// ==================================== scope::has_owner_incl_base
 
-bool scope::ext_has_owner(const scope &o) const {
+bool scope::has_owner_incl_base(const scope *o) const {
    assert(&o != NULL);
-   return (this == &o || has_owner(o)
-         || (has_owner() && owner().ext_has_owner(o)));
+   return (this == o || has_owner(o)
+         || (has_owner() && owner()->has_owner_incl_base(o)));
 }
 
 
 // ==================================== scope::base
 
-const scope &scope::base(void) const {
+const scope *scope::base(void) const {
   assert(_base != NULL);
-  return *_base;
+  return _base;
 }
 
 
@@ -215,9 +200,9 @@ bool scope::has_base(void) const {
 }
 
 
-bool scope::has_base(const scope &b) const {
-   assert(&b != NULL);
-   return (_base == &b);
+bool scope::has_base(const scope *b) const {
+   assert(b != NULL);
+   return (_base == b);
 }
 
 
@@ -228,32 +213,32 @@ void scope::set_base(void) {
 }
 
 
-void scope::set_base(scope &b) {
-   if(&b == NULL) throw 1;
-   _base = &b;
+void scope::set_base(scope *b) {
+   assert(b);
+   _base = b;
 }
 
 
-// ==================================== scope::ext_has_base
+// ==================================== scope::has_base_incl_base
 
-bool scope::ext_has_base(const scope &b) const {
-   assert(&b != NULL);
-   return (this == &b || has_base(b)
-         || (has_base() && base().ext_has_base(b)));
+bool scope::has_base_incl_base(const scope *b) const {
+   assert(b != NULL);
+   return (this == b || has_base(b)
+         || (has_base() && base()->has_base_incl_base(b)));
 }
 
 
 // ==================================== scope::has
 
-int scope::has(const string &n, int start) const {
+int scope::has_slot(const string &n, int start) const {
    int i;
    if(start > 0) for(i = start; i <= size(); i++) {
-      if(old_slot(i).name == n) {
+      if(existing_slot(i)->name == n) {
          return i;    // 1-based
       }
    }
    if(start < 0) for(i = start; -i <= size(); i--) {
-      if(old_slot(i).name == n) {
+      if(existing_slot(i)->name == n) {
          return i;    // -1-based
       }
    }
@@ -261,28 +246,28 @@ int scope::has(const string &n, int start) const {
 }
 
 
-int scope::has(const scope &obj, int start) const {
-   return has(obj.name, start);
+int scope::has_slot(const scope *obj, int start) const {
+   return has_slot(obj->name, start);
 }
 
 
-bool scope::has(int num) const {
+bool scope::has_at_least_slots(int num) const {
    assert(num != 0); // invalid query
    return abs(num) <= size();
 }
 
 
-// ==================================== scope::ext_has
+// ==================================== scope::has_incl_base
 
-int scope::ext_has(const string &n, int start) const {
+int scope::has_slot_incl_base(const string &n, int start) const {
    int i;
-   if(start > 0) for(i = start; i <= ext_size(); i++) {
-      if(ext_old_slot(i).name == n) {
+   if(start > 0) for(i = start; i <= size_incl_base(); i++) {
+      if(existing_slot_incl_base(i)->name == n) {
          return i;    // 1-based
       }
    }
-   if(start < 0) for(i = start; -i <= ext_size(); i--) {
-      if(ext_old_slot(i).name == n) {
+   if(start < 0) for(i = start; -i <= size_incl_base(); i--) {
+      if(existing_slot_incl_base(i)->name == n) {
          return i;    // -1-based
       }
    }
@@ -295,12 +280,12 @@ int scope::ext_has(const string &n, int start) const {
 int scope::owns(const string &n, int start) const {
    int i;
    if(start > 0) for(i = start; i <= size(); i++) {
-      if(old_slot(i).name == n && owns(i)) {
+      if(existing_slot(i)->name == n && owns(i)) {
          return i;    // 1-based
       }
    }
    if(start < 0) for(i = start; -i <= size(); i--) {
-      if(old_slot(i).name == n && owns(i)) {
+      if(existing_slot(i)->name == n && owns(i)) {
          return i;    // -1-based
       }
    }
@@ -308,8 +293,8 @@ int scope::owns(const string &n, int start) const {
 }
 
 
-int scope::owns(const scope &obj, int start) const {
-   return owns(obj.name, start);
+int scope::owns(const scope *obj, int start) const {
+   return owns(obj->name, start);
 }
 
 
@@ -321,17 +306,17 @@ bool scope::owns(int num) const {
 }
 
 
-// ==================================== scope::ext_owns
+// ==================================== scope::owns_incl_base
 
-int scope::ext_owns(const string &n, int start) const {
+int scope::owns_incl_base(const string &n, int start) const {
    int i;
-   if(start > 0) for(i = start; i <= ext_size(); i++) {
-      if(ext_old_slot(i).name == n && ext_owns(i)) {
+   if(start > 0) for(i = start; i <= size_incl_base(); i++) {
+      if(existing_slot_incl_base(i)->name == n && owns_incl_base(i)) {
          return i;    // 1-based
       }
    }
-   if(start < 0) for(i = start; -i <= ext_size(); i--) {
-      if(ext_old_slot(i).name == n && ext_owns(i)) {
+   if(start < 0) for(i = start; -i <= size_incl_base(); i--) {
+      if(existing_slot_incl_base(i)->name == n && owns_incl_base(i)) {
          return i;    // -1-based
       }
    }
@@ -339,35 +324,35 @@ int scope::ext_owns(const string &n, int start) const {
 }
 
 
-int scope::ext_owns(const scope &obj, int start) const {
-   return ext_owns(obj.name, start);
+int scope::owns_incl_base(const scope *obj, int start) const {
+   return owns_incl_base(obj->name, start);
 }
 
 
-bool scope::ext_owns(int num) const {
-   if(num < 0) num += ext_size() + 1;
-   assert(num >= 1 && num <= ext_size());
-   int th = ext_size() - size();
+bool scope::owns_incl_base(int num) const {
+   if(num < 0) num += size_incl_base() + 1;
+   assert(num >= 1 && num <= size_incl_base());
+   int th = size_incl_base() - size();
    if(num > th) {
       return owns(num - th);  // local symbol
    }
    else {
-      return base().ext_owns(num);
+      return base()->owns_incl_base(num);
    }
 }
 
 
-// ==================================== scope::find_slot_obj
+// ==================================== scope::slot_offset
 
-int scope::find_slot_obj(const scope &obj, int start) const {
+int scope::slot_offset(const scope *obj, int start) const {
    int i;
    if(start > 0) for(i = start; i <= size(); i++) {
-      if(&old_slot(i) == &obj) {
+      if(existing_slot(i) == obj) {
          return i;    // 1-based
       }
    }
    if(start < 0) for(i = start; -i <= size(); i--) {
-      if(&old_slot(i) == &obj) {
+      if(existing_slot(i) == obj) {
          return i;    // -1-based
       }
    }
@@ -375,17 +360,17 @@ int scope::find_slot_obj(const scope &obj, int start) const {
 }
 
 
-// ==================================== scope::ext_find_slot_obj
+// ==================================== scope::slot_offset_incl_base
 
-int scope::ext_find_slot_obj(const scope &obj, int start) const {
+int scope::slot_offset_incl_base(const scope *obj, int start) const {
    int i;
-   if(start > 0) for(i = start; i <= ext_size(); i++) {
-      if(&ext_old_slot(i) == &obj) {
+   if(start > 0) for(i = start; i <= size_incl_base(); i++) {
+      if(existing_slot_incl_base(i) == obj) {
          return i;    // 1-based
       }
    }
-   if(start < 0) for(i = start; -i <= ext_size(); i--) {
-      if(&ext_old_slot(i) == &obj) {
+   if(start < 0) for(i = start; -i <= size_incl_base(); i--) {
+      if(existing_slot_incl_base(i) == obj) {
          return i;    // -1-based
       }
    }
@@ -395,35 +380,24 @@ int scope::ext_find_slot_obj(const scope &obj, int start) const {
 
 // ==================================== scope::new_slot
 
-scope &scope::new_slot(const string &n, int new_pos) {
+scope *scope::new_slot(const string &n, int new_pos) {
    scope *p = new scope(n);
-   return new_slot(*p, new_pos);
+   return new_slot(p, new_pos);
 }
 
 
-scope &scope::operator [](const string &n) {
-   return new_slot(n);
-}
-
-
-scope &scope::operator <<(const string &n) {
-   new_slot(n);
-   return *this;
-}
-
-
-scope &scope::new_slot(scope &obj, int new_pos) {
+scope *scope::new_slot(scope *obj, int new_pos) {
    assert(&obj != NULL);
    if(new_pos <= 0) new_pos += size() + 1;
    assert(new_pos >= 1 && new_pos <= size() + 1);
 
-   _slot.insert(_slot.begin() + (new_pos - 1), &obj);
+   _slot.insert(_slot.begin() + (new_pos - 1), obj);
    _owns.insert(_owns.begin() + (new_pos - 1), false);
-   if(!obj.has_owner()) {
+   if(!obj->has_owner()) {
       // circular ownership will lead to infinite recursion.  if we
       // are to own this object, then it cannot own us, even indirectly
-      assert(!ext_has_owner(obj));
-      obj.set_owner(*this);
+      assert(!has_owner_incl_base(obj));
+      obj->set_owner(this);
    }
 
    assert(_slot.size() == _owns.size());
@@ -431,96 +405,58 @@ scope &scope::new_slot(scope &obj, int new_pos) {
 }
 
 
-scope &scope::operator [](scope &obj) {
-   return new_slot(obj);
-}
-
-
-scope &scope::operator <<(scope &obj) {
-   new_slot(obj);
-   return *this;
-}
-
-
 // ==================================== scope::slot
 
-scope &scope::slot(const string &n, int new_pos) {
-   int p = has(n, (new_pos? new_pos: -1));
+scope *scope::slot(const string &n, int new_pos) {
+   int p = has_slot(n, (new_pos? new_pos: -1));
    if(p != 0) {
-      return old_slot(p);
+      return existing_slot(p);
    }
    return new_slot(n, new_pos);
 }
 
 
-scope &scope::operator ()(const string &n) {
-   return slot(n);
-}
-
-
-scope &scope::operator <(const string &n) {
-   slot(n);
-   return *this;
-}
-
-
-scope &scope::slot(scope &obj, int new_pos) {
-   int p = has(obj, (new_pos? new_pos: -1));
+scope *scope::slot(scope *obj, int new_pos) {
+   int p = has_slot(obj, (new_pos? new_pos: -1));
    if(p != 0) {
-      return old_slot(p);
+      return existing_slot(p);
    }
    return new_slot(obj, new_pos);
 }
 
 
-scope &scope::operator ()(scope &obj) {
-   return slot(obj);
-}
+// ==================================== scope::existing_slot
 
-
-scope &scope::operator <(scope &obj) {
-   slot(obj);
-   return *this;
-}
-
-
-// ==================================== scope::old_slot
-
-scope &scope::old_slot(int num) const {
+scope *scope::existing_slot(int num) const {
    if(num < 0) num += size() + 1;
    assert(num >= 1 && num <= size());
 
-   return *_slot[num - 1];
+   return _slot[num - 1];
 }
 
 
-scope &scope::operator ()(int num) const {
-   return old_slot(num);
-}
+// ==================================== scope::existing_slot_incl_base
 
-
-// ==================================== scope::ext_old_slot
-
-scope &scope::ext_old_slot(int num) const {
-   if(num < 0) num += ext_size() + 1;
-   assert(num >= 1 && num <= ext_size());
-   int th = ext_size() - size();
+scope *scope::existing_slot_incl_base(int num) const {
+   if(num < 0) num += size_incl_base() + 1;
+   assert(num >= 1 && num <= size_incl_base());
+   int th = size_incl_base() - size();
    if(num > th) {
-      return old_slot(num - th);  // local symbol
+      return existing_slot(num - th);  // local symbol
    }
    else {
-      return base().ext_old_slot(num);
+      return base()->existing_slot_incl_base(num);
    }
 }
 
 
 // ==================================== scope::append_scope
 
-scope &scope::append_scope(scope &s) {
-   for(int i = 1; i <= s.size(); i++) {
-      new_slot(s.old_slot(i));
+scope *scope::append_scope(scope *s) {
+   for(int i = 1; i <= s->size(); i++) {
+      new_slot(s->existing_slot(i));
    }
-   return *this;
+   return this;
 }
 
 
