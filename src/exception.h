@@ -17,6 +17,7 @@
 
 #include <string>
 #include <exception>
+#include <stdexcept>
  
 namespace std {
 
