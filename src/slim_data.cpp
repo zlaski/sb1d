@@ -14,6 +14,7 @@
  *****************************************************************************/
 
 #include <ctype.h>
+#include <stdint.h>
 
 //#include <sstream>
 using namespace std;

@@ -29,7 +29,7 @@ bld/sb1d: $(OBJECTS)
 $(OBJECTS): $(HEADERS)
 
 $(OBJECTS): bld/%.o: src/%.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@
+	$(CXX) -c -std=c++11 $(CXXFLAGS) $(CPPFLAGS) $< -o $@
 
 blddir:
 	mkdir -p bld
