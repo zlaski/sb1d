@@ -319,6 +319,10 @@ scope *slim_binary::Type(sym_vis vis, int &gtl, int &ltl) {
              throw slim_error(InvalidPointee, current_module->name, type_offs);
          }
 
+         if (pointee->has_slot("RECORD")) {
+             pointer_sym->new_slot("POINTS TO RECORD");
+         }
+
          slim_str type_name; f >> type_name;
          if (!type_name.val.empty()) {
              pointer_sym->name = type_name.val;
@@ -942,7 +946,15 @@ void slim_binary::generate_sym_enum(scope *enum_sym, int &gtl, int &ltl,
             lcode->new_slot(enum_sym, (*tl? (*tl)++: 0));  // at the BEGINNING (1-based)!
             lcode->new_slot(" := " + enum_sym->name, (*tl? (*tl)++: 0))->slot(bi->slot("RIGHT"));
             lcode->new_slot(enum_sym->name + " := ", (*tl? (*tl)++: 0))->slot(bi->slot("LEFT"));
-            lcode->new_slot(enum_sym->name + "^", (*tl? (*tl)++: 0))->slot(type_sym->slot("TYPE"));
+            if (type_sym->has_slot("POINTS TO RECORD")) {
+                // Pointers to records do not need "^" in field accesses in Oberon.  Perhaps "^"
+                // is not appropriate here at all? time will tell
+                lcode->new_slot(enum_sym->name + "", (*tl ? (*tl)++ : 0))->slot(type_sym->slot("TYPE"));
+            }
+            else {
+                // BYTE PTR
+                lcode->new_slot(enum_sym->name + "^", (*tl ? (*tl)++ : 0))->slot(type_sym->slot("TYPE"));
+            }
          }
          else if(type_sym->has_slot("ARRAY")) {
             lcode->new_slot(enum_sym, (*tl? (*tl)++: 0));  // at the BEGINNING (1-based)!

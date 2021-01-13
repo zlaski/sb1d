@@ -232,7 +232,7 @@ scope *slim_binary::Expr(int &code_id) {
             case capFunc: op = bi->slot("CAP"); break;
             case oddFunc: op = bi->slot("ODD"); break;
             case newFunc: op = bi->slot("NEW"); break;
-            case derefFunc: op = bi->slot("^"); op->slot(bi->slot("POSTFIX")); break;
+            case derefFunc: op = bi->slot(""); /* was "^" */ op->slot(bi->slot("POSTFIX")); break;
             case singletonSet: op = bi->slot("{}"); op->slot(bi->slot("SET")); break;
             // type casts
             case chrFunc: {
@@ -244,7 +244,7 @@ scope *slim_binary::Expr(int &code_id) {
                if(arg_type->eq("REAL") || arg_type->eq("LONGREAL")) {
                    op = bi->slot("SHORT(SHORT(ENTIER"); op->slot(bi->slot("NEST3"));
                }
-               else if(arg_type->eq("LONGINT")) {
+               else if (arg_type->eq("LONGINT")) {
                    op = bi->slot("SHORT(SHORT"); op->slot(bi->slot("NEST2"));
                }
                else {
@@ -256,10 +256,10 @@ scope *slim_binary::Expr(int &code_id) {
             case ordFunc: {
                // function name depends on argument type!
                if(arg_type->eq("LONGINT")) {
-                  op = bi->slot("SHORT");
+                  op = bi->slot("SHORT");  // --> INTEGER
                }
                else if(arg_type->eq("SHORTINT")) {
-                  op = bi->slot("LONG");
+                  op = bi->slot("LONG"); // --> INTEGER
                }
                else if(arg_type->eq("REAL") || arg_type->eq("LONGREAL")) {
                    op = bi->slot("SHORT(ENTIER"); op->slot(bi->slot("NEST2"));
@@ -272,14 +272,15 @@ scope *slim_binary::Expr(int &code_id) {
             }
             case entierFunc: {
                // function name depends on argument type!
-               if(arg_type->eq("CHAR") || arg_type->eq("INTEGER")) {
+               if(arg_type->eq("INTEGER")) {
                   op = bi->slot("LONG");
                }
-               else if(arg_type->eq("SHORTINT")) {
+               // not sure if "CHAR" should not have a separate "LONG(LONG(LONG"...
+               else if(arg_type->eq("CHAR") || arg_type->eq("SHORTINT")) {
                    op = bi->slot("LONG(LONG"); op->slot(bi->slot("NEST2"));
                }
                else {
-                  op = bi->slot("ENTIER");
+                  op = bi->slot("ENTIER"); // largest integer not greater than real x
                }
                monadic->slot("TYPE")->slot(bi->slot("LONGINT"));
                break;
@@ -307,8 +308,12 @@ scope *slim_binary::Expr(int &code_id) {
                break;
             }
          }
-         monadic->slot("FUNCTION")->slot(op);
-         monadic->slot("ARGUMENTS")->new_slot(lhs);
+
+         if (code_id != derefFunc) {
+             // not sure if this would hurt...
+             monadic->slot("FUNCTION")->slot(op);
+             monadic->slot("ARGUMENTS")->new_slot(lhs);
+         }
 
          if(op->has_slot("PREFIX")) {
             monadic->name = op->name + lhs->name;

@@ -16,7 +16,7 @@
 #ifndef __juice_slim_binary
 #define __juice_slim_binary
 
-#define SB1D_VERSION "2.03"
+#define SB1D_VERSION "2.04"
 #define SLIMBIN      "Slim Binary(tm)"
 #define FILEMAP_HEADER 0x22
 #define FILEDIR_FILE "$FILEDIR.$$$"
