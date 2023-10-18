@@ -34,3 +34,28 @@ RTOS, as those are low-level (PowerPC) binaries.
 Please create an issue on GitHub if you run into problems.
 
 Enjoy!
+
+## Other Potentially Useful Stuff
+
+### Oberon System 3
+
+The `System3` contains binary distributions for Mac OS 7 and for Windows 3.1/95/NT.
+The Windows binary seems to work on newer Win32 versions.  The Mac version should
+_hopefully_ run on a PowerPC machine, maybe even under Mac OS X in classic mode,
+but I haven't tried it.
+
+### Caught on Safari
+
+I came across vintage Slim Binary:tm: browser plugin sources {here}(https://github.com/berkus/Juice)
+and {here}(https://github.com/Spirit-of-Oberon/Juice). Both appears to be Thomas Kistler's
+original UC Irvine Juice:tm: 1.1 distribution, and should supercharge your Netscape Navigator.
+
+The vintage, pre-built Juice:tm: plug-ins for {Mac OS}(doc/Juice12.sea.hqx)
+and {Windows}(doc/Juice11.zip) may be found in the `doc` folder.
+
+### This Time We're Gonna Go back
+
+The Internet Archive's {Wayback Machine}(https://web.archive.org/) contains
+ancient snapshots of the UC Irvine ICS web pages devoted to 
+{Juice:tm:}(https://web.archive.org/web/20061125105032/http://www.oberon.ws/UCI/juice/)
+and {Oberon}(http://web.archive.org/web/19990429113811/http://www.ics.uci.edu/~oberon/).
