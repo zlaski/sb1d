@@ -1,12 +1,9 @@
-   (C) Copyright 1997-1999 Regents of the University of California.
-   (C) Copyright 2000-2021 Ziemowit Laski
+   (C) Copyright 1996-1999 Regents of the University of California.
+   (C) Copyright 2000-2023 Ziemowit Laski
    All rights reserved.
 
-   This software was developed as part of the Juice project by the
-   research group of Prof. Dr. Michael Franz at the University of 
-   California, Irvine.  The archived website may be found at URL:
-   https://web.archive.org/web/19990224193647/...
-      http://caesar.ics.uci.edu/juice/index.html. 
+   This software was developed as part of the Juice project at
+   the University of California, Irvine. 
 
    Redistribution and use of the decoder and any
    output files that it generates is permitted provided
@@ -26,4 +23,4 @@
    FOR A PARTICULAR PURPOSE.
 
    "Slim Binary(tm)" is a trademark owned by the Regents of the 
-   University of California 
+   University of California. 
